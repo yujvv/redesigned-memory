@@ -37,20 +37,30 @@ with open(file_path, "r", encoding="utf-8") as file:
 text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=100, chunk_overlap=0
 )
-texts = text_splitter.split_text(text)
+all_splits = text_splitter.split_text(text)
 
-print("------------", texts)
+print("------------", all_splits)
 
 # Creating Embeddings and Storing in Vector Store
 # You have to create embeddings for each small chunk of text and store them in the vector store (i.e. FAISS). You will be using `all-mpnet-base-v2` Sentence Transformer to convert all pieces of text in vectors while storing them in the vector store.
 
-from langchain.embeddings import HuggingFaceEmbeddings
+# from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
+from sentence_transformers import SentenceTransformer
 
-model_name = "sentence-transformers/all-mpnet-base-v2"
-model_kwargs = {"device": "cuda"}
+EMBEDDING_PATH = "D:/Yu/rag/bge-large-zh-v1.5"
 
-embeddings = HuggingFaceEmbeddings(model_name=model_name, model_kwargs=model_kwargs)
+# model_name = "sentence-transformers/all-mpnet-base-v2"
+# model_kwargs = {"device": "cuda"}
+
+# embeddings = HuggingFaceEmbeddings(model_name=model_name, model_kwargs=model_kwargs)
+
+bge_embedding_model = SentenceTransformer(EMBEDDING_PATH)
+
+
+embeddings = bge_embedding_model.encode(all_splits, normalize_embeddings=True)
+
+
 
 # storing embeddings in the vector store
 vectorstore = FAISS.from_documents(all_splits, embeddings)
