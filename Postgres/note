@@ -1,0 +1,21 @@
+Chroma is brand new, not ready for production.
+
+Faiss is prohibitively expensive in prod, unless you found a provider I haven't found. Pinecode is a non-starter for example, just because of the pricing.
+
+I'm preparing for production and the only production-ready vector store I found that won't eat away 99% of the profits is the pgvector extension for Postgres. And as a bonus, I get to store the rest of my data in the same location. It's fast, works great, it's production-ready, and it's cheap to host. Langchain has an adapter via Prisma (You should use Prisma too, saves a ton of time)
+
++1 on being able to store your other data with embedded documents. I've been using pgvector for similarity search then using COMMENT(s) applied on tables and columns to give natural language table and comments descriptions they can be retrieved at runtime by agents via tools.
+
+For example formatting rules like ISO 2 country codes for a field. Really nice for running in tools with agents interacting directly with the sql database outside of semantic search. Going to be trying to get it running with PostGIS fields this week for natural language geospatial queries.
+
+Postgres is awesome.
+
+
+Pgvector比较慢
+Pgvector for postgres was benchmarked at 100x slower than native vector dbs. You said speed was important, so i alerted you.
+
+Weaviate也算一个选项
+We are also using Weaviate. It has been great so far.
+
+langchain集成的一些向量数据库
+https://python.langchain.com/docs/integrations/vectorstores/

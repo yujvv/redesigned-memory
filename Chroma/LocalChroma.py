@@ -34,3 +34,14 @@ docsearch.persist()
 
 # 加载数据
 # docsearch = Chroma(persist_directory="D:/vector_store", embedding_function=embeddings)
+
+# -----------------------
+
+# 加载数据
+docsearch = Chroma(persist_directory="./Chroma/ChromaIndex", embedding_function=embeddings)
+
+# 通过向量存储初始化检索器
+retriever = docsearch.as_retriever()
+
+query = "华为HG8346M是什么?"
+docs = docsearch.similarity_search(query, include_metadata=True)
