@@ -3,9 +3,15 @@ from langchain.document_loaders.unstructured import UnstructuredFileLoader
 import cv2
 from PIL import Image
 import numpy as np
-from configs import PDF_OCR_THRESHOLD
-from document_loaders.ocr import get_ocr
+# from configs import PDF_OCR_THRESHOLD
+# from document_loaders.ocr import get_ocr
 import tqdm
+
+
+# PDF OCR 控制：只对宽高超过页面一定比例（图片宽/页面宽，图片高/页面高）的图片进行 OCR。
+# 这样可以避免 PDF 中一些小图片的干扰，提高非扫描版 PDF 处理速度
+PDF_OCR_THRESHOLD = (0.6, 0.6)
+
 
 
 class RapidOCRPDFLoader(UnstructuredFileLoader):
@@ -34,6 +40,21 @@ class RapidOCRPDFLoader(UnstructuredFileLoader):
             rotated_img = cv2.warpAffine(img, M, (new_w, new_h))
             return rotated_img
         
+
+        def get_ocr(use_cuda: bool = True) -> "RapidOCR":
+            from rapidocr_onnxruntime import RapidOCR
+            ocr = RapidOCR()
+            return ocr
+            # try:
+            #     from rapidocr_paddle import RapidOCR
+            #     ocr = RapidOCR(det_use_cuda=use_cuda, cls_use_cuda=use_cuda, rec_use_cuda=use_cuda)
+            # except ImportError:
+            #     from rapidocr_onnxruntime import RapidOCR
+            #     ocr = RapidOCR()
+            # return ocr
+
+
+
         def pdf2text(filepath):
             import fitz # pyMuPDF里面的fitz包，不要与pip install fitz混淆
             import numpy as np
@@ -82,6 +103,6 @@ class RapidOCRPDFLoader(UnstructuredFileLoader):
 
 
 if __name__ == "__main__":
-    loader = RapidOCRPDFLoader(file_path="/Users/tonysong/Desktop/test.pdf")
+    loader = RapidOCRPDFLoader(file_path="MA5600T.pdf")
     docs = loader.load()
     print(docs)
