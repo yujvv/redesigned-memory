@@ -1,6 +1,8 @@
 import os
 import platform
 from transformers import AutoTokenizer, AutoModel
+# prompt格式参考
+# https://www.jianshu.com/p/066631299d0e
 
 class ChatGLMInterface:
     def __init__(self):
