@@ -43,8 +43,10 @@ def split_document_with_overlap(file_path, chunk_size, overlap_size, delimiters)
     if buffer:
         chunks.append(buffer)
         chunk_ids.append(f"id{chunk_id}")
-
+        
+    # 函数最终返回了两个列表，分别是 chunk_ids 和 chunks，分别代表了分割后的文本片段的唯一标识和内容。
     return chunk_ids, chunks  # Corrected the return statement here
+
 
 def get_relevant_documents(query, n_results=1):
     # Load and split the document
