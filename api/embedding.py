@@ -15,8 +15,7 @@ class TextEmbeddingAPI:
 
 if __name__ == "__main__":
         
-    from embedding import TextEmbeddingAPI
-
+    # from embedding import TextEmbeddingAPI
     embedding_api = TextEmbeddingAPI()
     split_data = ["文本1", "文本2", "文本3"]
     embeddings = embedding_api.generate_embeddings(split_data)
