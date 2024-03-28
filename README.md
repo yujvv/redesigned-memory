@@ -3,3 +3,6 @@ RAG框架涉及到多种模型，以及很多个步骤。为了更好地进行�
 
 
 https://zilliz.com.cn/use-cases/llm-retrieval-augmented-generation
+
+
+https://chat.openai.com/share/26aba92f-4d70-43d1-bf1e-1504948b664b
