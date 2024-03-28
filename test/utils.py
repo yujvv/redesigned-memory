@@ -13,9 +13,9 @@ def load_config():
 
 config = load_config()
 
-def load_embeddings(model_name=config["embeddings"]["name"],
-                    model_kwargs = {'device': config["embeddings"]["device"]}):
-    return HuggingFaceEmbeddings(model_name=model_name, model_kwargs = model_kwargs)
+# def load_embeddings(model_name=config["embeddings"]["name"],
+#                     model_kwargs = {'device': config["embeddings"]["device"]}):
+#     return HuggingFaceEmbeddings(model_name=model_name, model_kwargs = model_kwargs)
 
 def load_documents(directory : str):
     """Loads all documents from a directory and returns a list of Document objects

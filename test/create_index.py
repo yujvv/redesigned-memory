@@ -1,5 +1,5 @@
 from langchain_community.vectorstores import FAISS
-from utils import load_documents, save_db, load_embeddings
+from utils import load_documents, save_db
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 model_name = "BAAI/bge-large-en-v1.5"
 model_kwargs = {'device': 'cuda'}
