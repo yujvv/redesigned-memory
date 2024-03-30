@@ -4,6 +4,7 @@ from langchain.llms.base import LLM
 from transformers import AutoTokenizer, AutoModel, AutoConfig
 from typing import List, Optional
 
+# bug, not work
 
 class ChatGLM3(LLM):
     max_token: int = 8192
