@@ -8,13 +8,19 @@ from langchain.chains.question_answering import load_qa_chain
 # from langchain.llms import OpenAI
 # from langchain.callbacks import get_openai_callback
 from langchain.embeddings import HuggingFaceBgeEmbeddings
-from ChatGLM3 import ChatGLM3
+from api import chatglm_openai
 
 
 def main():
     load_dotenv()
     st.set_page_config(page_title="Ask your PDF")
     st.header("Ask your PDF 💬")
+    
+    # load the model
+    PATH = "D:/Yu/rag/chatglm3-6b"
+    # sys.path.append(modelpath)
+    llm = chatglm_openai()
+    llm.load_model(model_name_or_path = PATH)
     
     # upload file
     pdf = st.file_uploader("Upload your PDF", type="pdf")
@@ -55,9 +61,6 @@ def main():
         docs = knowledge_base.similarity_search(user_question)
         
         # llm = OpenAI()
-        PATH = "D:/Yu/rag/chatglm3-6b"
-        llm = ChatGLM3()
-        llm.load_model(PATH)
         chain = load_qa_chain(llm, chain_type="stuff")
 
         response = chain.run(input_documents=docs, question=user_question)
