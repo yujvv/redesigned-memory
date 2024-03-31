@@ -1,14 +1,9 @@
 from langchain.chains import RetrievalQA
-from dotenv import load_dotenv
 # from langchain_openai import ChatOpenAI
 from utils import load_embeddings, load_db
 from transformers import AutoTokenizer, AutoModel, AutoConfig
 from langchain.llms.base import LLM
 from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
-
-load_dotenv()
-
-
 
 class GLM(LLM):
     max_token: int = 2048
