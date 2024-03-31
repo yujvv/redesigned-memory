@@ -2,7 +2,6 @@
 import streamlit as st
 from PIL import Image
 import io
-# from datetime import datetime
 
 
 # 设置页面布局
