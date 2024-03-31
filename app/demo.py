@@ -9,9 +9,9 @@ import io
 st.set_page_config(layout="wide")
 
 # 创建上传图片和文本的容器
-st.sidebar.title("上传图片和文本")
+st.sidebar.title("Conversations with Your Images and Text 💬")
 
-# 图片和文本存储
+# 图片和文本存储 
 images = []
 captions = []
 # text_blocks = []
@@ -27,20 +27,20 @@ if 'dialogue_history' not in st.session_state:
 #     st.session_state.input_key = datetime.now().strftime("%Y%m%d%H%M%S")
 
 # 上传图片和标题
-with st.sidebar.expander("上传图片"):
-    uploaded_files = st.file_uploader("选择图片", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
+with st.sidebar.expander("Upload Images"):
+    uploaded_files = st.file_uploader("Select an Image", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
     for i, file in enumerate(uploaded_files):
-        caption = st.text_input(f"输入图片 {i+1} 的标题", key=f"caption_{i}")
+        caption = st.text_input(f"Enter the Annotations for Image {i+1}", key=f"caption_{i}")
         if file and caption:
             images.append(file)
             captions.append(caption)
 
 # 上传文本
-with st.sidebar.expander("上传文本"):
+with st.sidebar.expander("Upload Text"):
     # text_input = st.text_area("输入文本", height=200, max_chars=300)
     text_input_container = st.empty()
-    text_input = text_input_container.text_area("输入文本", height=200, max_chars=300)
-    if st.button("添加文本"):
+    text_input = text_input_container.text_area("Enter Text", height=200, max_chars=300)
+    if st.button("Add Text"):
         if text_input:
             st.session_state.text_blocks.append((st.session_state.chunk_nums, text_input))
             # text_blocks.append((chunk_nums, text_input))
@@ -58,7 +58,7 @@ col1, col2 = st.columns(2)
 
 # 显示图片标题和预览
 with col1:
-    st.header("图片")
+    st.header("Images")
     for i, (file, caption) in enumerate(zip(images, captions), start=1):
         with st.expander(f"{i}. {caption}", expanded=True):
             img = Image.open(io.BytesIO(file.read()))
@@ -66,26 +66,26 @@ with col1:
 
 # 显示标题和文本
 with col2:
-    st.header("标题和文本")
+    st.header("Text")
     for i, text in enumerate(st.session_state.text_blocks, start=1):
         with st.expander(f"{i}. 文本", expanded=True):
             st.write(text)
-            if st.button(f"删除 {i}", key=f"delete_{i}"):
+            if st.button(f"Delete {i}", key=f"delete_{i}"):
                 st.session_state.text_blocks.pop(i-1)
                 st.session_state.chunk_nums -= 1
 
 # 对话部分
-st.header("对话")
-input_text = st.text_input("输入你的消息")
+st.header("UniConvo 💬")
+input_text = st.text_input("Enter Your Message")
 # dialogue_history = []
-if st.button("发送"):
+if st.button("Send"):
     # 添加你处理输入文本的逻辑
-    st.session_state.dialogue_history.append(("用户", input_text))
+    st.session_state.dialogue_history.append(("User", input_text))
     # 示例响应
-    response = "这是系统的示例响应。"
-    st.session_state.dialogue_history.append(("系统", response))
+    response = "Response"
+    st.session_state.dialogue_history.append(("💬", response))
 
-if st.button("清除对话"):
+if st.button("Clear"):
     st.session_state.dialogue_history = []
 
 for sender, message in st.session_state.dialogue_history:
