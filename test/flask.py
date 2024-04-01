@@ -1,10 +1,7 @@
 from flask import Flask, request, jsonify
-
 from utils import load_embeddings, load_db
 
 app = Flask(__name__)
-
-
 
 embedding_function = load_embeddings()
 
@@ -15,7 +12,7 @@ db = load_db(embedding_function)
 def ask_question():
     data = request.get_json()
     query = data['query']
-    context = db.similarity_search(query)
+    context = db.similarity_search(query, k=3)
     return jsonify({"context": context})
 
 if __name__ == "__main__":
