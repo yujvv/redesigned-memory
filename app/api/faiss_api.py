@@ -1,40 +1,51 @@
+# conda install faiss-cpu -c pytorch
+# conda install faiss-gpu -c pytorch
 import faiss
 import pickle
 from sentence_transformers import SentenceTransformer
 import numpy as np
+import os
 
-PATH = "D:/Yu/rag/bge-large-zh-v1.5"
-
-class Faiss_GPU:
-    def __init__(self, name, path, embedding_model=PATH):
+class FaissGPU:
+    def __init__(self, name, path, embedding_model='all-MiniLM-L6-v2'):
         self.name = name
         self.path = path
         self.embedder = SentenceTransformer(embedding_model)
+        self.index_path = os.path.join(path, f"{name}.pkl")
         self.load_or_create_index()
 
-    # The load_or_create_index method loads the faiss index from a pickle file if it exists, or creates a new index if it doesn't.
     def load_or_create_index(self):
-        try:
-            with open(f"{self.path}/{self.name}.pkl", "rb") as f:
+        if os.path.exists(self.index_path):
+            with open(self.index_path, "rb") as f:
                 self.index = pickle.load(f)
-        except FileNotFoundError:
-            self.index = faiss.IndexFlatIP(self.embedder.get_sentence_embeddings("").shape[0])
+        else:
+            self.index = None
 
     # The add method embeds the keys using the sentence transformer, checks if any of the embeddings already exist in the index, and adds the new embeddings to the index along with their corresponding indices.
     def add(self, data):
         keys = list(data.keys())
         embeddings = self.embedder.encode(keys)
         ids = np.arange(len(keys))
-        indices_to_add = []
-        for i, emb in zip(ids, embeddings):
-            if not np.any(np.all(self.index.vector_data == emb, axis=1)):
-                indices_to_add.append(i)
-        if indices_to_add:
-            self.index.add(np.array([embeddings[i] for i in indices_to_add]))
-            for i, idx in zip(indices_to_add, self.index.ntotal - len(indices_to_add) + np.array(indices_to_add)):
+
+        if self.index is None:
+            self.index = faiss.IndexFlatIP(embeddings.shape[1])
+            self.index.add(embeddings)
+            for i, idx in enumerate(self.index.ntotal):
                 data[keys[i]] = idx
-            with open(f"{self.path}/{self.name}.pkl", "wb") as f:
+            with open(self.index_path, "wb") as f:
                 pickle.dump(self.index, f)
+        else:
+            indices_to_add = []
+            for i, emb in zip(ids, embeddings):
+                if not np.any(np.all(self.index.vector_data == emb, axis=1)):
+                    indices_to_add.append(i)
+            if indices_to_add:
+                self.index.add(np.array([embeddings[i] for i in indices_to_add]))
+                for i, idx in zip(indices_to_add, self.index.ntotal - len(indices_to_add) + np.array(indices_to_add)):
+                    data[keys[i]] = idx
+                with open(self.index_path, "wb") as f:
+                    pickle.dump(self.index, f)
+
 
     # The query method takes a query string as input and returns the top k most similar embeddings and their corresponding indices, along with their similarity scores.
     def query(self, query_text, k=5):
