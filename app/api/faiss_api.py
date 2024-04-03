@@ -15,11 +15,14 @@ class Faiss_GPU:
         self.load_or_create_index()
 
     def load_or_create_index(self):
+        print("Index Path:", self.index_path)
         if os.path.exists(self.index_path):
             with open(self.index_path, "rb") as f:
                 self.index = pickle.load(f)
+                print("Existing Index:", self.index.ntotal)
         else:
             self.index = None
+            print("No Existing Index.")
 
     # The add method embeds the keys using the sentence transformer, checks if any of the embeddings already exist in the index, and adds the new embeddings to the index along with their corresponding indices.
     def add(self, data):
@@ -30,25 +33,31 @@ class Faiss_GPU:
         if self.index is None:
             self.index = faiss.IndexFlatIP(embeddings.shape[1])
             self.index.add(embeddings)
-            for i, idx in enumerate(self.index.ntotal):
+            for i, idx in zip(ids, range(self.index.ntotal)):
                 data[keys[i]] = idx
+            os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
             with open(self.index_path, "wb") as f:
                 pickle.dump(self.index, f)
+                print("Create Index over.")
         else:
             indices_to_add = []
+            reconstructed_data = self.index.reconstruct(self.index.ntotal)
             for i, emb in zip(ids, embeddings):
-                if not np.any(np.all(self.index.vector_data == emb, axis=1)):
+                if not np.any(reconstructed_data == emb):
                     indices_to_add.append(i)
             if indices_to_add:
                 self.index.add(np.array([embeddings[i] for i in indices_to_add]))
-                for i, idx in zip(indices_to_add, self.index.ntotal - len(indices_to_add) + np.array(indices_to_add)):
+                start_idx = self.index.ntotal - len(indices_to_add)
+                for i, idx in zip(indices_to_add, range(start_idx, self.index.ntotal)):
                     data[keys[i]] = idx
+                os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
                 with open(self.index_path, "wb") as f:
                     pickle.dump(self.index, f)
-
+                    print("Update Index over.")
 
     # The query method takes a query string as input and returns the top k most similar embeddings and their corresponding indices, along with their similarity scores.
-    def query(self, query_text, k=5):
+    def query(self, query_text, k=2):
+        print("Index Nums:", self.index.ntotal, " Top",k,"Result.")
         query_embedding = self.embedder.encode([query_text])[0]
         distances, indices = self.index.search(np.array([query_embedding]), k)
         return [(1 - distances[0][i], indices[0][i]) for i in range(k)]
@@ -56,27 +65,29 @@ class Faiss_GPU:
     # The delete method takes a key string as input, embeds it, checks if the embedding exists in the index, and if so, removes it from the index and saves the updated index to a pickle file.
     def delete(self, key):
         key_embedding = self.embedder.encode([key])[0]
-        indices_to_delete = np.flatnonzero(np.all(self.index.vector_data == key_embedding, axis=1))
-        if indices_to_delete.size > 0:
-            self.index.remove_ids(indices_to_delete)
-            with open(f"{self.path}/{self.name}.pkl", "wb") as f:
+        distances, indices = self.index.search(np.expand_dims(key_embedding, axis=0), 1)
+        if indices[0] != -1:
+            self.index.remove_ids(indices[0])
+            with open(self.index_path, "wb") as f:
                 pickle.dump(self.index, f)
+                print("Index Nums after Delete:", self.index.ntotal)
         else:
             return None
         
 
 
-# faiss_gpu = Faiss_GPU("my_index", "path/to/index/directory")
+faiss_gpu = Faiss_GPU("my_index", "/text/index")
 
-# # Add some data
-# faiss_gpu.add({"apple": 0, "banana": 1, "orange": 2})
+# Add some data
+faiss_gpu.add({"apple": 0, "banana": 1, "orange": 2})
 
-# # Query for similar items
-# results = faiss_gpu.query("fruit")
-# print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
+# Query for similar items
 
-# # Delete an item
-# faiss_gpu.delete("apple")
+results = faiss_gpu.query("orange")
+print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
+
+# Delete an item
+faiss_gpu.delete("apple")
         
 
 
