@@ -76,18 +76,18 @@ class Faiss_GPU:
         
 
 
-faiss_gpu = Faiss_GPU("my_index", "/text/index")
+# faiss_gpu = Faiss_GPU("my_index", "/text/index")
 
-# Add some data
-faiss_gpu.add({"apple": 0, "banana": 1, "orange": 2})
+# # Add some data
+# faiss_gpu.add({"apple": 0, "banana": 1, "orange": 2})
 
-# Query for similar items
+# # Query for similar items
 
-results = faiss_gpu.query("orange")
-print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
+# results = faiss_gpu.query("orange")
+# print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
 
-# Delete an item
-faiss_gpu.delete("apple")
+# # Delete an item
+# faiss_gpu.delete("apple")
         
 
 
