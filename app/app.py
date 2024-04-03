@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import io
 from api.vector_db import VectorDatabase
+from api.faiss_api import Faiss_GPU
 
 class ImageTextUploader:
     def __init__(self):
@@ -79,14 +80,14 @@ def main():
 
     # Initialize the vector database
     # todo
-    embedding_model = EmbeddingModel()
-    vector_db = VectorDatabase(embedding_model)
+
+    vector_db = Faiss_GPU("demo_index", "path/to/index/directory")
 
     # Add image annotations and text to the vector database
     for caption in uploader.captions:
-        vector_db.add_data(caption)
+        vector_db.add(caption)
     for chunk_num, text in uploader.text_blocks:
-        vector_db.add_data(text)
+        vector_db.add(text)
 
     # Build the vector index
     vector_db.build_index()

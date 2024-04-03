@@ -6,8 +6,8 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
 
-class FaissGPU:
-    def __init__(self, name, path, embedding_model='all-MiniLM-L6-v2'):
+class Faiss_GPU:
+    def __init__(self, name, path, embedding_model='D:/Yu/rag/bge-large-zh-v1.5'):
         self.name = name
         self.path = path
         self.embedder = SentenceTransformer(embedding_model)
