@@ -1,11 +1,12 @@
 from openai import OpenAI
 import time
 import requests
+import re
 
 
 # Set OpenAI's API key and API base to use vLLM's API server.
 openai_api_key = "EMPTY"
-openai_api_base = "http://localhost:8000/v1"
+openai_api_base = "http://192.168.0.232:8000/v1"
 
 client = OpenAI(
     api_key=openai_api_key,
@@ -41,24 +42,60 @@ history=[
         #{"role": "user", "content": "Hello!"},
         # {"role": "assistant", "content": "Hi, how can I help you today?"},
     ]
+
+
+from utils import load_db
+
+from langchain.embeddings import HuggingFaceBgeEmbeddings
+model_name = "BAAI/bge-large-en-v1.5"
+model_kwargs = {'device': 'cuda'}
+encode_kwargs = {'normalize_embeddings': True} # set True to compute cosine similarity
+model = HuggingFaceBgeEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs,
+    encode_kwargs=encode_kwargs,
+    query_instruction="为这个句子生成表示以用于检索相关文章："
+)
+
+
+
+# Load embeddings and database
+embedding_function = model
+db = load_db(embedding_function)
+
+
+def extract_core_text(documents):
+    core_text_set = set() 
+    for document in documents:
+        core_text_set.add(document.page_content) 
+
+    core_text = '\n'.join(core_text_set)
+    return core_text
+
 while True:
     inp = input("\nInput: ")
     
     # Use rag to check the context
-    url = 'http://<flask_app_ip>:5000/ask'
-    response = requests.post(url, json={'query': inp})
-    data = response.json()
-    context = data['context']
+    # url = 'http://localhost:5000/ask'
+    # response = requests.post(url, json={'query': inp})
+    # data = response.json()
+    # context = data['context']
     # print("Context for the query:", context)
+
+
+    context = db.similarity_search(inp, k=2)
+
+    core_text = extract_core_text(context)
+    # print("context:::", core_text)
     
     content=f"""Your goal is to answer the following question, using the associated texts as context, as truthfully as you can.
     Question: ${inp}
-    Context: ${context}
+    Context: ${core_text}
     """
-
+    # Context: ${context}
     history.append({"role": "user", "content": content})
 
-
+    
 
     stream = client.chat.completions.create(
         model="Yi-34B",

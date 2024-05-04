@@ -29,3 +29,8 @@ python flask.py
 pdf.ai
 https://zilliz.com.cn/use-cases/llm-retrieval-augmented-generation
 https://chat.openai.com/share/26aba92f-4d70-43d1-bf1e-1504948b664b
+
+
+
+上述是一些动作以及其描述。请用python的字典格式，重新输出。key是从1开始的编号，velue是对应上述每个动作的中文描述。
+我想使用上述字典所描述的动作，匹配做动作时说的话，请使用新的描述代替这些动作的描述。
