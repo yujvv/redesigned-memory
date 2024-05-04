@@ -1,32 +1,52 @@
-import docx
 from api.faiss_api import Faiss_GPU
+import docx
+from docx.shared import Pt
 
-def get_text_under_headings(docx_file):
+def get_text_and_objects(docx_file):
     doc = docx.Document(docx_file)
     data = {}
-    current_heading = None
+    current_chunk = None
     current_text = []
+    tables = {}
+    images = {}
 
-    for paragraph in doc.paragraphs:
-        if paragraph.style.name == "Heading 3":
-            if current_heading is not None:
-                data[current_heading] = "\n".join(current_text)
-            current_heading = paragraph.text
-            current_text = []
-        else:
-            current_text.append(paragraph.text)
+    for element in doc.element.body:
+        if isinstance(element, docx.text.paragraph.Paragraph):
+            if element.style.font.size == Pt(12):  # Assuming size 3 font is 12pt
+                if current_chunk is not None:
+                    data[current_chunk] = "\n".join(current_text)
+                    current_text = []
+                current_chunk = element.text
+            else:
+                current_text.append(element.text)
+        elif isinstance(element, docx.table.Table):
+            table_id = len(tables)
+            tables[table_id] = {"chunk": current_chunk}
+        elif isinstance(element, docx.shape.InlineShape):
+            image_id = len(images)
+            images[image_id] = {"chunk": current_chunk}
 
-    if current_heading is not None:
-        data[current_heading] = "\n".join(current_text)
+    if current_chunk is not None:
+        data[current_chunk] = "\n".join(current_text)
 
-    return data
+    return data, tables, images
 
 # Usage example
 docx_file = "path/to/your/file.docx"
-data = get_text_under_headings(docx_file)
+data, tables, images = get_text_and_objects(docx_file)
 
+# Add the text data to the index
+for chunk, text in data.items():
+    Faiss_GPU.add({chunk: text})
 
-faiss_gpu = Faiss_GPU("my_index", "./index")
+# Print the tables and images with their associated chunks
+for table_id, table_data in tables.items():
+    print(f"Table {table_id} belongs to chunk: {table_data['chunk']}")
+
+for image_id, image_data in images.items():
+    print(f"Image {image_id} belongs to chunk: {image_data['chunk']}")
+
+# faiss_gpu = Faiss_GPU("my_index", "./index")
 
 # # Add some data
 # faiss_gpu.add({"apple": 0, "banana": 1, "orange": 2})
@@ -36,5 +56,5 @@ faiss_gpu = Faiss_GPU("my_index", "./index")
 # # Delete an item
 # faiss_gpu.delete("apple")
 
-# Add the data to the index
-faiss_gpu.add(data)
+
+# faiss_gpu.add(data)
