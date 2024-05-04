@@ -17,6 +17,7 @@ def get_text_and_objects(docx_file):
                     data[current_chunk] = "\n".join(current_text)
                     current_text = []
                 current_chunk = element.text
+                print("text:____", element.text)
             else:
                 current_text.append(element.text)
         elif isinstance(element, docx.table.Table):
@@ -31,14 +32,17 @@ def get_text_and_objects(docx_file):
 
     return data, tables, images
 
+
+faiss_gpu = Faiss_GPU("my_index", "/text/index")
 # Usage example
-docx_file = "path/to/your/file.docx"
+docx_file = "./2test.docx"
 data, tables, images = get_text_and_objects(docx_file)
 
 # Add the text data to the index
 for chunk, text in data.items():
-    Faiss_GPU.add({chunk: text})
+    faiss_gpu.add({chunk: text})
 
+print("over:____")
 # Print the tables and images with their associated chunks
 for table_id, table_data in tables.items():
     print(f"Table {table_id} belongs to chunk: {table_data['chunk']}")
