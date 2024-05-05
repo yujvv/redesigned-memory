@@ -12,17 +12,22 @@ class Faiss_GPU:
         self.path = path
         self.embedder = SentenceTransformer(embedding_model)
         self.index_path = os.path.join(path, f"{name}.pkl")
-        self.load_or_create_index()
+        # self.load_or_create_index()
+
+        self.semantics = None
+        self.index = self.load_or_create_index()
+
 
     def load_or_create_index(self):
         print("Index Path:", self.index_path)
         if os.path.exists(self.index_path):
             with open(self.index_path, "rb") as f:
-                self.index = pickle.load(f)
-                print("Existing Index:", self.index.ntotal)
+                index = pickle.load(f)
+                # print("Existing Index:", self.index.ntotal)
+                return index
         else:
-            self.index = None
             print("No Existing Index.")
+            return None
 
     # The add method embeds the keys using the sentence transformer, checks if any of the embeddings already exist in the index, and adds the new embeddings to the index along with their corresponding indices.
     def add(self, data):
@@ -56,11 +61,25 @@ class Faiss_GPU:
                     print("Update Index over.")
 
     # The query method takes a query string as input and returns the top k most similar embeddings and their corresponding indices, along with their similarity scores.
-    def query(self, query_text, k=2):
+    def query(self, query_text, k=3):
         print("Index Nums:", self.index.ntotal, " Top",k,"Result.")
         query_embedding = self.embedder.encode([query_text])[0]
         distances, indices = self.index.search(np.array([query_embedding]), k)
         return [(1 - distances[0][i], indices[0][i]) for i in range(k)]
+    
+    def query_index(self, query, data, k=1):
+        self.semantics = data
+        # Compute embedding for the query
+        query_embedding = self.embedder.encode([query])[0]
+        # Search for similar vectors in the index
+        scores, indices = self.index.search(query_embedding.reshape(1, -1), k)
+        # Return relevant actions
+        Retrieval = []
+        for score, idx in zip(scores[0], indices[0]):
+            semantic = list(self.semantics.keys())[idx]
+            keys = self.semantics[semantic]
+            Retrieval.append((semantic, keys, score))
+        return Retrieval
 
     # The delete method takes a key string as input, embeds it, checks if the embedding exists in the index, and if so, removes it from the index and saves the updated index to a pickle file.
     def delete(self, key):
@@ -76,15 +95,45 @@ class Faiss_GPU:
         
 
 
-# faiss_gpu = Faiss_GPU("my_index", "/text/index")
+actions_semantics = {
+    "这一点需要特别强调和解释。": 1,
+    "我会详细解释给你听。": 2,
+    "很高兴长时间问候你。": 3,
+    "我用左手指向前方给你指引。": 4,
+    "我用右手指向前方给你指引。": 5,
+    "暂时不做任何动作。": 6,
+    "交给我来处理。": 7,
+    "我指向并引用这一点。": 8,
+    "我会展示并指引你。": 9,
+    "这里有一些选择给你。": 10,
+    "我用右手指向右侧呈现给你。": 11,
+    "我双手举起欢迎你。": 12,
+    "我用右手指向右侧，逐点解释给你。": 13,
+    "我摇头表示否定。": 14,
+    "我表示尊重。": 15,
+    "我交叉双臂表示拒绝。": 16,
+    "我挥动右手表示确认。": 17,
+    "我点头表示同意。": 18,
+    "暂时不做任何动作，等待25秒。": 19,
+    "暂时不做任何动作，等待46秒。": 20
+}
 
-# # Add some data
-# faiss_gpu.add({"apple": 0, "banana": 1, "orange": 2})
 
-# # Query for similar items
 
-# results = faiss_gpu.query("orange")
-# print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
+faiss_gpu = Faiss_GPU("my_index", "./text/test")
+
+# Add some data
+# faiss_gpu.add(actions_semantics)
+
+# Query for similar items
+
+results = faiss_gpu.query_index("你好，我将用右手为您指路。", actions_semantics)
+
+
+for action, semantic, score in results:
+    print(f'Action: {action}, Semantic: {semantic}, Score: {score}')
+
+print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
 
 # # Delete an item
 # faiss_gpu.delete("apple")
@@ -92,7 +141,7 @@ class Faiss_GPU:
 
 
 
-# 我认为你很熟悉faiss-gpu，对吗？
+# 关于faiss-gpu
 # 我希望你能仔细学习faiss的开发指示，帮助我构建一系列python的api，关于faiss-gpu。
 # 具体有如下函数功能：
 # 传入两个参数，name和path，维护一个本地的pkl的faiss向量数据库，如果对应path的{name}.pkl不存在，就新建一个faiss向量数据库，否则加载为类变量。
