@@ -3,6 +3,7 @@ from docx.shared import Inches
 import os
 import re
 
+
 class Loader:
     def __init__(self):
         self.global_index = 0
@@ -14,7 +15,9 @@ class Loader:
         doc = Document(docx_file)
 
         for paragraph in doc.paragraphs:
-            if paragraph.text and paragraph.style.font.size >= Inches(0.2):
+            # if paragraph.text and paragraph.style.font.size >= Inches(0.2):
+            if paragraph.text and paragraph.style.font.size is not None and paragraph.style.font.size >= Inches(0.2):
+
                 if current_chunk:
                     content_list.append({"index": self.global_index, "content": "\n".join(current_chunk)})
                     current_chunk = []
