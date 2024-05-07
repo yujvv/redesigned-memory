@@ -95,45 +95,45 @@ class Faiss_GPU:
         
 
 
-actions_semantics = {
-    "这一点需要特别强调和解释。": 1,
-    "我会详细解释给你听。": 2,
-    "很高兴长时间问候你。": 3,
-    "我用左手指向前方给你指引。": 4,
-    "我用右手指向前方给你指引。": 5,
-    "暂时不做任何动作。": 6,
-    "交给我来处理。": 7,
-    "我指向并引用这一点。": 8,
-    "我会展示并指引你。": 9,
-    "这里有一些选择给你。": 10,
-    "我用右手指向右侧呈现给你。": 11,
-    "我双手举起欢迎你。": 12,
-    "我用右手指向右侧，逐点解释给你。": 13,
-    "我摇头表示否定。": 14,
-    "我表示尊重。": 15,
-    "我交叉双臂表示拒绝。": 16,
-    "我挥动右手表示确认。": 17,
-    "我点头表示同意。": 18,
-    "暂时不做任何动作，等待25秒。": 19,
-    "暂时不做任何动作，等待46秒。": 20
-}
+# actions_semantics = {
+#     "这一点需要特别强调和解释。": 1,
+#     "我会详细解释给你听。": 2,
+#     "很高兴长时间问候你。": 3,
+#     "我用左手指向前方给你指引。": 4,
+#     "我用右手指向前方给你指引。": 5,
+#     "暂时不做任何动作。": 6,
+#     "交给我来处理。": 7,
+#     "我指向并引用这一点。": 8,
+#     "我会展示并指引你。": 9,
+#     "这里有一些选择给你。": 10,
+#     "我用右手指向右侧呈现给你。": 11,
+#     "我双手举起欢迎你。": 12,
+#     "我用右手指向右侧，逐点解释给你。": 13,
+#     "我摇头表示否定。": 14,
+#     "我表示尊重。": 15,
+#     "我交叉双臂表示拒绝。": 16,
+#     "我挥动右手表示确认。": 17,
+#     "我点头表示同意。": 18,
+#     "暂时不做任何动作，等待25秒。": 19,
+#     "暂时不做任何动作，等待46秒。": 20
+# }
 
 
 
-faiss_gpu = Faiss_GPU("my_index", "./text/test")
+# faiss_gpu = Faiss_GPU("my_index", "./text/test")
 
-# Add some data
-# faiss_gpu.add(actions_semantics)
+# # Add some data
+# # faiss_gpu.add(actions_semantics)
 
-# Query for similar items
+# # Query for similar items
 
-results = faiss_gpu.query_index("你好，我将用右手为您指路。", actions_semantics)
+# results = faiss_gpu.query_index("你好，我将用右手为您指路。", actions_semantics)
 
 
-for action, semantic, score in results:
-    print(f'Action: {action}, Semantic: {semantic}, Score: {score}')
+# for action, semantic, score in results:
+#     print(f'Action: {action}, Semantic: {semantic}, Score: {score}')
 
-print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
+# print(results)  # [(0.8, 0), (0.7, 1), (0.6, 2)]
 
 # # Delete an item
 # faiss_gpu.delete("apple")

@@ -1,6 +1,7 @@
 from docx import Document
 from docx.shared import Inches
-import base64
+import os
+import re
 
 # 定义全局变量用于保存当前的index
 global_index = 0
@@ -10,23 +11,20 @@ def extract_content(docx_file):
 
     doc = Document(docx_file)
     content_list = []
-    image_dict = {}
-    table_dict = {}
-
+    # image_dict = {}
     current_chunk = []
-    current_subheading = ""
 
     for paragraph in doc.paragraphs:
-        if paragraph.text.startswith('###') and paragraph.style.font.size >= Inches(0.3):
-            if current_chunk:
-                # 使用全局index
-                content_list.append({"index": global_index, "content": "\n".join(current_chunk)})
-                current_chunk = []
-                global_index += 1  # 每次添加chunk时递增全局index
+        # if paragraph.text.startswith('###') and paragraph.style.font.size >= Inches(0.3):
+        #     print("The 0.3 chunking____")            
+        #     if current_chunk:
+        #         # 使用全局index
+        #         content_list.append({"index": global_index, "content": "\n".join(current_chunk)})
+        #         current_chunk = []
+        #         global_index += 1  # 每次添加chunk时递增全局index
 
-            # current_subheading = paragraph.text.strip('### ')
-
-        elif paragraph.text and paragraph.style.font.size >= Inches(0.2):
+        if paragraph.text and paragraph.style.font.size >= Inches(0.2):
+            print("The 0.2 chunking____")
             if current_chunk:
                 # 使用全局index
                 content_list.append({"index": global_index, "content": "\n".join(current_chunk)})
@@ -34,59 +32,63 @@ def extract_content(docx_file):
                 global_index += 1  # 每次添加chunk时递增全局index
 
             current_chunk.append(paragraph.text)
+
 
         elif paragraph.text:
             current_chunk.append(paragraph.text)
 
-        # for run in paragraph.runs:
-        #     if run.element.tag.endswith('}r'):
-        #         # 处理图片
-        #         pic_element = run.element.find('.//*/{http://schemas.openxmlformats.org/drawingml/2006/picture}pic')
-        #         if pic_element is not None:
-        #             image_data = None
-        #             for item in run.element.findall('.//*/{http://schemas.openxmlformats.org/drawingml/2006/picture}blip'):
-        #                 embed_id = item.attrib["{%s}embed" % item.nsmap['r']]
-        #                 for rel in doc.part.rels:
-        #                     if rel.rId == embed_id:
-        #                         image_data = rel.target_part.blob
-        #                         break
-        #             if image_data:
-        #                 image_dict.setdefault(global_index, []).append(base64.b64encode(image_data).decode('utf-8'))
-
-        #     # 处理表格
-        #     elif run.element.tag.endswith('}tbl'):
-        #         table_dict[global_index] = [cell.text for cell in paragraph.cells]
-
-        for run in paragraph.runs:
-            if run.element.tag.endswith('}r'):
-                # 处理图片
-                pic_element = run.element.find('.//*/{http://schemas.openxmlformats.org/drawingml/2006/picture}pic')
-                if pic_element is not None:
-                    image_dict[global_index] = image_dict.get(global_index, [])
-                    image_dict[global_index].append(run._r)
-
-            # 处理表格
-            elif run.element.tag.endswith('}tbl'):
-                table_dict[global_index] = table_dict.get(global_index, [])
-                table_dict[global_index].append(run.element.xml)
-
-
     if current_chunk:
+        print("The last chunking____")
         content_list.append({"index": global_index, "content": "\n".join(current_chunk)})
         global_index += 1  # 每次添加chunk时递增全局index
+        
 
-    return content_list, image_dict, table_dict
 
-if __name__ == '__main__':
-    docx_file = '2test.docx'
-    content_list, image_dict, table_dict = extract_content(docx_file)
 
-    print("Content List:")
-    for i, chunk in enumerate(content_list):
-        print(f"Chunk {i + 1}:\n{chunk}\n")
-        print("----------")
+    return content_list
 
-    print("Image Dictionary:")
-    print(image_dict)
-    print("\nTable Dictionary:")
-    print(table_dict)
+
+def get_image(docx_file):
+    image_dict = {}
+    doc = Document(docx_file)
+    dict_rel = doc.part._rels
+    # dict_rel = paragraph.part._rels
+    image_index = 1
+    for rel in dict_rel:
+        rel = dict_rel[rel]
+        if "image" in rel.target_ref:
+            if not os.path.exists("./images"):
+                os.makedirs("./images")
+
+            img_name = re.findall("/(.*)", rel.target_ref)[0]
+            img_name = f'{global_index}-{image_index}.{img_name.split(".")[-1]}'
+
+            with open(f'{"./images"}/{img_name}', "wb") as f:
+                f.write(rel.target_part.blob)
+
+            image_dict[global_index] = image_dict.get(global_index, [])
+            image_dict[global_index].append(img_name)
+            image_index += 1
+
+def build_dict(content_list):
+    result_dict = {}
+    for item in content_list:
+        result_dict[item["content"]] = item["content"]
+    return result_dict
+
+# if __name__ == '__main__':
+#     docx_file = '2test.docx'
+#     content_list = extract_content(docx_file)
+#     # image_dict = get_image(docx_file)
+
+#     print("Content List:")
+#     for i, chunk in enumerate(content_list):
+#         print(f"Chunk {i + 1}:\n{chunk}\n")
+#         print("----------")
+
+#     result_dict = build_dict(content_list)
+
+#     print("===========", result_dict)
+
+    # print("Image Dictionary:")
+    # print(image_dict)
