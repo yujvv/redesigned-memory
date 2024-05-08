@@ -1,5 +1,14 @@
 import streamlit as st
 import time
+from api.faiss_api import Faiss_GPU
+from api.loader_docx import Loader
+from api.chatglm import ChatGLMInterface
+
+def build_dict(content_list):
+    result_dict = {}
+    for item in content_list:
+        result_dict[item["content"]] = item["index"]
+    return result_dict
 
 # Set the page configuration
 st.set_page_config(
@@ -34,10 +43,19 @@ h1 {
 st.markdown(css, unsafe_allow_html=True)
 
 # Add a header
-st.markdown("<h1>🔍 Q&A Interface</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🔍 Car Q&A Interface 🚗</h1>", unsafe_allow_html=True)
 
 # Initialize the chat history
 chat_history = []
+
+# Load the necessary components
+loader = Loader()
+docx_file = 'M9.docx'
+content_list = loader.extract_content(docx_file)
+result_dict = build_dict(content_list)
+faiss_gpu = Faiss_GPU("M9", "./demo")
+faiss_gpu.add(result_dict)
+language_model_interface = ChatGLMInterface()
 
 # Add an input area
 with st.form("input_form"):
@@ -49,7 +67,10 @@ with st.form("input_form"):
         chat_history.append(("User", user_input))
 
         # Process the user input and generate the output
-        output = "------------------------"
+        results = faiss_gpu.query_index(user_input, result_dict)
+        top = results[0][0]
+        prompt = f"你好，你是我的车内助手。请基于背景，帮我温柔地回答问题。\nContext:{top}\nQ: {user_input}\nA:"
+        output = language_model_interface.generate_response(prompt, False)
 
         # Add a typing animation
         typing_animation = st.empty()
@@ -70,9 +91,3 @@ for sender, message in chat_history:
         st.markdown(f"<div class='input-area'><strong>You:</strong> {message}</div>", unsafe_allow_html=True)
     else:
         st.markdown(f"<div class='output-area'><strong>Bot:</strong> {message}</div>", unsafe_allow_html=True)
-
-# Define the function to process the user input
-def process_input(input_text):
-    # Add your logic to process the input and generate the output
-    # For now, let's just return the input text
-    return input_text

@@ -24,15 +24,6 @@ faiss_gpu.add(result_dict)
 language_model_interface = ChatGLMInterface()
 
 
-# while True:
-#     query = input("\n用户：")
-#     if query.strip() == "stop":
-#         break
-#     if query.strip() == "clear":
-#         os.system(language_model_interface.clear_command)
-#         continue
-
-
 while True:
     qa = input("Ask your QA: ")
     results = faiss_gpu.query_index(qa, result_dict)
@@ -45,6 +36,3 @@ while True:
 
     response = language_model_interface.generate_response(prompt, False)
     print("\n助手的回复：", response)
-
-# Add some data
-# faiss_gpu.add(actions_semantics)
