@@ -3,12 +3,39 @@ import time
 from api.faiss_api import Faiss_GPU
 from api.loader_docx import Loader
 from api.chatglm import ChatGLMInterface
+import logging
+logging.getLogger('streamlit').setLevel(logging.ERROR)
+
 
 def build_dict(content_list):
     result_dict = {}
     for item in content_list:
         result_dict[item["content"]] = item["index"]
     return result_dict
+
+# @st.cache(allow_output_mutation=True)
+# def initialize_models():
+#     loader = Loader()
+#     docx_file = 'M9.docx'
+#     content_list = loader.extract_content(docx_file)
+#     result_dict = build_dict(content_list)
+#     faiss_gpu = Faiss_GPU("demo0", "./index")
+#     faiss_gpu.add(result_dict)
+#     language_model_interface = ChatGLMInterface()
+#     return faiss_gpu, result_dict, language_model_interface
+
+
+@st.cache_resource()
+def initialize_models():
+    loader = Loader()
+    docx_file = 'M9.docx'
+    content_list = loader.extract_content(docx_file)
+    result_dict = build_dict(content_list)
+    faiss_gpu = Faiss_GPU("demo0", "./index")
+    faiss_gpu.add(result_dict)
+    language_model_interface = ChatGLMInterface()
+    return faiss_gpu, result_dict, language_model_interface
+
 
 # Set the page configuration
 st.set_page_config(
@@ -43,19 +70,13 @@ h1 {
 st.markdown(css, unsafe_allow_html=True)
 
 # Add a header
-st.markdown("<h1>🔍 Car Q&A Interface 🚗</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🔍 Car 🚗 Q&A Interface </h1>", unsafe_allow_html=True)
 
 # Initialize the chat history
 chat_history = []
 
-# Load the necessary components
-loader = Loader()
-docx_file = 'M9.docx'
-content_list = loader.extract_content(docx_file)
-result_dict = build_dict(content_list)
-faiss_gpu = Faiss_GPU("M9", "./demo")
-faiss_gpu.add(result_dict)
-language_model_interface = ChatGLMInterface()
+# Initialize models
+faiss_gpu, result_dict, language_model_interface = initialize_models()
 
 # Add an input area
 with st.form("input_form"):
