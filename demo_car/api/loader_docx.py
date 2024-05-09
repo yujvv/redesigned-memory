@@ -15,23 +15,26 @@ class Loader:
         doc = Document(docx_file)
 
         for paragraph in doc.paragraphs:
-            # if paragraph.text and paragraph.style.font.size >= Inches(0.2):
-            if paragraph.text and paragraph.style.font.size is not None and paragraph.style.font.size >= Inches(0.2):
 
+            if paragraph.text and paragraph.style.font.size is not None and paragraph.style.font.size >= Inches(0.2):
                 if current_chunk:
-                    content_list.append({"index": self.global_index, "content": "\n".join(current_chunk)})
+                    content_list.append({"index": self.global_index, "title": current_title, "content": "\n".join(current_chunk)})
                     current_chunk = []
                     self.global_index += 1
+                current_title = paragraph.text
 
                 current_chunk.append(paragraph.text)
+
+
             elif paragraph.text:
                 current_chunk.append(paragraph.text)
 
         if current_chunk:
-            content_list.append({"index": self.global_index, "content": "\n".join(current_chunk)})
+            content_list.append({"index": self.global_index, "title": current_title, "content": "\n".join(current_chunk)})
             self.global_index += 1
-
+            
         return content_list
+
 
     def get_images(self, docx_file):
         image_dict = {}

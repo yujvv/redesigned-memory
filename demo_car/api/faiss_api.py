@@ -67,7 +67,7 @@ class Faiss_GPU:
         distances, indices = self.index.search(np.array([query_embedding]), k)
         return [(1 - distances[0][i], indices[0][i]) for i in range(k)]
     
-    def query_index(self, query, data, k=1):
+    def query_index(self, query, data, title_dict, k=1):
         self.semantics = data
         # Compute embedding for the query
         query_embedding = self.embedder.encode([query])[0]
@@ -78,7 +78,9 @@ class Faiss_GPU:
         for score, idx in zip(scores[0], indices[0]):
             semantic = list(self.semantics.keys())[idx]
             keys = self.semantics[semantic]
-            Retrieval.append((semantic, keys, score))
+            title = title_dict[semantic]
+            Retrieval.append((semantic, keys, score, title))
+        print("------------\n")
         return Retrieval
 
     # The delete method takes a key string as input, embeds it, checks if the embedding exists in the index, and if so, removes it from the index and saves the updated index to a pickle file.
