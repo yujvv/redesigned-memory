@@ -25,6 +25,7 @@ def get_pictures(word_path, result_path):
                 for run in doc.paragraphs:
                     if run.text.strip() == rel.target_part.blob[:10]:
                         chunk_index = run._p.get_sourceLine() + 1
+                        print("------------", chunk_index)
                         break
 
                 img_name = re.findall("/(.*)", rel.target_ref)[0]
