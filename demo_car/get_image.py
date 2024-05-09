@@ -41,6 +41,6 @@ def get_pictures(word_path, result_path):
         print(f"Error: {e}")
 
 # Example usage
-word_path = "2test.docx"
+word_path = "car_table.docx"
 result_path = "./images"
 get_pictures(word_path, result_path)
