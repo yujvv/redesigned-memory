@@ -97,7 +97,7 @@ with st.form("input_form"):
 
         score = results[0][2]
         hint = ""
-        if score > 0.2:
+        if score > 0.4:
             hint = "(知识来源于《" + title + "》章节)"
         else:
             hint = "(提供的背景中没有相关的知识)"
