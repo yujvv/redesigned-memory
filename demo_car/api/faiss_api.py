@@ -76,6 +76,7 @@ class Faiss_GPU:
         # Return relevant actions
         Retrieval = []
         for score, idx in zip(scores[0], indices[0]):
+            # chunking text本身转为list，会自然和vector database中的搜索结果（index）相契合
             semantic = list(self.semantics.keys())[idx]
             keys = self.semantics[semantic]
             title = title_dict[semantic]

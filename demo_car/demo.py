@@ -13,6 +13,7 @@ def build_dict(content_list):
     for item in content_list:
         result_dict[item["content"]] = item["index"]
         title_dict[item["content"]] = item["title"]
+    # 输出的两个字典，key都是text chunking本身，value分别为index和title
     return result_dict, title_dict
 
 # Function to initialize models
