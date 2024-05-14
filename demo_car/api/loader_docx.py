@@ -15,7 +15,7 @@ class Loader:
         doc = Document(docx_file)
 
         for paragraph in doc.paragraphs:
-
+            # 如果段落包含文本，并且字体大小已经设置且不小于 0.2 英寸（不小于 14.4 pt，用作小标题或强调文本）
             if paragraph.text and paragraph.style.font.size is not None and paragraph.style.font.size >= Inches(0.2):
                 if current_chunk:
                     content_list.append({"index": self.global_index, "title": current_title, "content": "\n".join(current_chunk)})
