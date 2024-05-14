@@ -1,6 +1,7 @@
 import docx
 import os
 import re
+# 该方法无法按照顺序读取图片_
 
 def get_pictures(word_path, result_path):
     """
