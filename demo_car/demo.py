@@ -71,10 +71,6 @@ faiss_gpu, result_dict, title_dict, language_model_interface = initialize_models
 # Function to display images
 def display_images(image_title):
     st.image("{image_title}.png", caption=image_title, use_column_width=True)
-    # if image_number == 1:
-    #     st.image("1.png", caption="抬头显示", use_column_width=True)
-    # elif image_number == 2:
-    #     st.image("2.png", caption="多屏联动", use_column_width=True)
 
 # Add an input area
 with st.form("input_form"):
@@ -107,11 +103,6 @@ with st.form("input_form"):
             time.sleep(0.1)
         typing_animation.empty()
 
-        # Display images if available
-        # if title == "仪表显示屏":
-        #     display_images(1)
-        # elif title == "智慧互联":
-        #     display_images(2)
         display_images(title)
 
         # Add the output to the chat history
