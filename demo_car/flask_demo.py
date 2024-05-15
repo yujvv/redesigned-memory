@@ -1,8 +1,7 @@
 from flask import Flask, request, jsonify
-import time
 from api.faiss_api import Faiss_GPU
 from api.loader_docx import Loader
-from api.chatglm import ChatGLMInterface
+# from api.chatglm import ChatGLMInterface
 
 app = Flask(__name__)
 
@@ -54,4 +53,6 @@ def process_text():
     return jsonify({'bot_response': bot_response, 'image_name': image_name})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    # 192.168.0.66
+    app.run(debug=True, host='0.0.0.0', port=8080)
