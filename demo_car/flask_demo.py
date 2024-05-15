@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from api.faiss_api import Faiss_GPU
 from api.loader_docx import Loader
 from datetime import datetime
+import random
 # from api.chatglm import ChatGLMInterface
 
 app = Flask(__name__)
@@ -27,24 +28,42 @@ faiss_gpu.add(result_dict)
 # language_model_interface = ChatGLMInterface()
 
 
+def get_random_response():
+    responses = [
+        "对不起，我无法找到相关信息。您是否可以提供更多详细信息或尝试其他查询？",
+        "抱歉，我没有找到您需要的信息。也许可以尝试不同的关键词或进一步描述您的需求。",
+        "很抱歉，没有找到相关内容。请您提供更多具体的细节或尝试另一个问题。",
+        "我很遗憾没有找到目标信息。如果您有其他问题或需要更多帮助，请随时告诉我。",
+        "对不起，我无法获取到您需要的资料。如果您有其他问题或需要特定的帮助，请告知，我会尽力帮您找到答案。"
+    ]
+    
+    return random.choice(responses)
+
 # Function to process input and return response
 def process_input(user_input):
     results = faiss_gpu.query_index(user_input, result_dict, title_dict)
-    # print("------------", results)
-    top = results[0][0]
-    title = results[0][3]
 
-    # prompt = f"你好，你是我的车内助手。请基于背景，帮我温柔地回答问题。\nContext:{top}\nQ: {user_input}\nA:"
+    if not results:
+        return get_random_response(), False
+    
+    context, score, title = results[0][0], results[0][2], results[0][3]
+
+    # prompt = context
+
+    prompt = (
+        f"你好，你是我的智能助手。请基于以下背景信息，详细、温柔且专业地回答我的问题。\n\n"
+        f"### 背景信息:\n{context}\n\n"
+        f"### 用户问题:\n{user_input}\n\n"
+        f"### 请给出详细且有帮助的回答:"
+    )
+
     # output = language_model_interface.generate_response(prompt, False)
 
-    # score = results[0][2]
-    # if score > 0.4:
-    #     hint = "(知识来源于《" + title + "》章节)"
-    # else:
-    #     hint = "(提供的背景中没有相关的知识)"
-    # bot = output + hint
+    if score < 0.4:
+        prompt = get_random_response()
+        title = False
 
-    return top, title
+    return prompt, title
 
 # Route for receiving text input and returning processed text and image name
 @app.route('/process_text', methods=['POST'])
@@ -53,16 +72,16 @@ def process_text():
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
     data = request.get_json()
-    user_input = data['user_input']
+    user_input = data['input']
 
     print("Time_________", formatted_time)
     print("Input______", user_input)
-    top, title = process_input(user_input)
-    print("Context_________", top, "\nTitle_________", title)
+    prompt, title = process_input(user_input)
+    print("prompt_________", prompt, "\nTitle_________", title)
 
-    bot_response, image_name = top, title
 
-    return jsonify({'bot_response': bot_response, 'image_name': image_name})
+
+    return jsonify({'context': prompt, 'title': title})
 
 if __name__ == '__main__':
     # app.run(debug=True)

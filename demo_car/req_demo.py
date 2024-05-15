@@ -1,15 +1,15 @@
 import requests
 
 def call_flask_api(user_input):
-    url = "http://127.0.0.1:5000/process_text"
-    data = {"user_input": user_input}
+    url = "http://-:5000/process_text"
+    data = {"input": user_input}
     response = requests.post(url, json=data)
     if response.status_code == 200:
         result = response.json()
-        bot_response = result['bot_response']
-        image_name = result['image_name']
-        print("Bot Response:", bot_response)
-        print("Image Name:", image_name)
+        prompt = result['prompt']
+        title = result['title']
+        print("Prompt:", prompt)
+        print("Title:", title)
     else:
         print("Error:", response.text)
 
