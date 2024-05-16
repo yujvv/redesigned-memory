@@ -93,8 +93,6 @@ def process_text():
     prompt, title = process_input(user_input)
     print("prompt_________", prompt, "\nTitle_________", title)
 
-
-
     return jsonify({'context': prompt, 'title': title})
 
 if __name__ == '__main__':
