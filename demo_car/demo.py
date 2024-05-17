@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import os
 from api.faiss_api import Faiss_GPU
 from api.loader_docx import Loader
 from api.chatglm import ChatGLMInterface
@@ -23,7 +24,7 @@ def initialize_models():
     docx_file = 'demo.docx'
     content_list = loader.extract_content(docx_file)
     result_dict, title_dict = build_dict(content_list)
-    faiss_gpu = Faiss_GPU("demo", "./index")
+    faiss_gpu = Faiss_GPU("demo0", "./index")
     faiss_gpu.add(result_dict)
     language_model_interface = ChatGLMInterface()
     return faiss_gpu, result_dict, title_dict, language_model_interface
