@@ -20,10 +20,10 @@ def build_dict(content_list):
 @st.cache_resource()
 def initialize_models():
     loader = Loader()
-    docx_file = 'M9.docx'
+    docx_file = 'demo.docx'
     content_list = loader.extract_content(docx_file)
     result_dict, title_dict = build_dict(content_list)
-    faiss_gpu = Faiss_GPU("demo10", "./index")
+    faiss_gpu = Faiss_GPU("demo", "./index")
     faiss_gpu.add(result_dict)
     language_model_interface = ChatGLMInterface()
     return faiss_gpu, result_dict, title_dict, language_model_interface
@@ -70,8 +70,16 @@ chat_history = []
 faiss_gpu, result_dict, title_dict, language_model_interface = initialize_models()
 
 # Function to display images
+# def display_images(image_title):
+#     st.image("{image_title}.png", caption=image_title, use_column_width=True)
 def display_images(image_title):
-    st.image("{image_title}.png", caption=image_title, use_column_width=True)
+    image_path = f"{image_title}.png"
+    if os.path.exists(image_path):
+        st.image(image_path, caption=image_title, use_column_width=True)
+    else:
+        st.write(f"⛔️ No 📷 Image.")
+        # You can display a default placeholder image here if you want
+        # st.image("placeholder.png", caption="Placeholder", use_column_width=True)
 
 # Add an input area
 with st.form("input_form"):
