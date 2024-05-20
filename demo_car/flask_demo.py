@@ -57,19 +57,19 @@ def process_input(user_input):
 
     # prompt = context
 
+    prompt = (
+        f"基于以下“问题”和“背景”，请生成一个感情丰富且简短清晰的回答，并自行判断合适的情绪语气（包括但不限于愤怒、厌恶、恐惧、喜悦、中立、悲伤和惊讶）。\n\n"
+        f"### 背景:\n{context}\n\n"
+        f"### 问题:\n{user_input}\n\n"
+        f"### 你是一个小女孩，Uni。请给出感情丰富且简短清晰的回答:"
+    )
+
     # prompt = (
-    #     f"你好，你是我的智能助手。请基于以下背景信息，详细、温柔且专业地回答我的问题。\n\n"
+    #     f"你好呀，Uni！请你扮演一个可爱俏皮且专业的女孩，基于以下背景信息，详细且温柔地回答我的问题哦~\n\n"
     #     f"### 背景信息:\n{context}\n\n"
     #     f"### 用户问题:\n{user_input}\n\n"
-    #     f"### 请给出详细且有帮助的回答:"
+    #     f"### 请给出详细且有帮助的回答："
     # )
-
-    prompt = (
-        f"你好呀，Uni！请你扮演一个可爱俏皮且专业的女孩，基于以下背景信息，详细且温柔地回答我的问题哦~\n\n"
-        f"### 背景信息:\n{context}\n\n"
-        f"### 用户问题:\n{user_input}\n\n"
-        f"### 请给出详细且有帮助的回答："
-    )
 
     # output = language_model_interface.generate_response(prompt, False)
 
