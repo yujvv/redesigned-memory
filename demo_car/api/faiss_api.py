@@ -61,7 +61,7 @@ class Faiss_GPU:
                     print("Update Index over.")
 
     # The query method takes a query string as input and returns the top k most similar embeddings and their corresponding indices, along with their similarity scores.
-    def query(self, query_text, k=3):
+    def query(self, query_text, k=10):
         print("Index Nums:", self.index.ntotal, " Top",k,"Result.")
         query_embedding = self.embedder.encode([query_text])[0]
         distances, indices = self.index.search(np.array([query_embedding]), k)
