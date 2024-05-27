@@ -24,10 +24,10 @@ def build_dict(content_list):
 @st.cache_resource()
 def initialize_models():
     loader = Loader()
-    docx_file = 'demo.docx'
+    docx_file = 'M9Z.docx'
     content_list = loader.extract_content(docx_file)
     result_dict, title_dict = build_dict(content_list)
-    faiss_gpu = Faiss_GPU("demo0", "./index")
+    faiss_gpu = Faiss_GPU("demo00zz", "./index")
     faiss_gpu.add(result_dict)
     language_model_interface = ChatGLMInterface()
     reranker = RerankerIndex()
@@ -77,14 +77,16 @@ faiss_gpu, result_dict, title_dict, language_model_interface, reranker = initial
 # Function to display images
 # def display_images(image_title):
 #     st.image("{image_title}.png", caption=image_title, use_column_width=True)
-def display_images(image_title):
-    image_path = f"{image_title}.png"
-    if os.path.exists(image_path):
+def display_images(image_title, score):
+    image_path = f"extracted_images/{image_title}.png"
+    # if os.path.exists(image_path) and score > 0.7:
+    if os.path.exists(image_path) and score > 0.5:
         st.image(image_path, caption=image_title, use_column_width=True)
     else:
         st.write(f"⛔️ No 📷 Image.")
         # You can display a default placeholder image here if you want
         # st.image("placeholder.png", caption="Placeholder", use_column_width=True)
+
 
 def get_random_response():
     responses = [    
@@ -111,28 +113,35 @@ with st.form("input_form"):
 
         # 提取每一行的第一个元素
         chunkingList = [row[0] for row in results]
-        reIndex = reranker.find_most_similar_index(chunkingList, user_input)
+        reIndex = reranker.find_most_similar_index(user_input, chunkingList)
         top = results[reIndex][0]
         title = results[reIndex][3]
         # prompt = f"你好，你是我的车内助手。请基于背景，帮我温柔地回答问题。\nContext:{top}\nQ: {user_input}\nA:"
+
         prompt = (
-            f"你好呀，Uni！请你扮演一个可爱俏皮且专业的女孩，基于以下背景信息，详细且温柔地回答我的问题哦~\n\n"
+            f"请你扮演一个专业的车辆助手，基于以下背景信息，简短且真实地回答我的问题。\n\n"
             f"### 背景信息:\n{top}\n\n"
             f"### 用户问题:\n{user_input}\n\n"
-            f"### 请针对问题，给出详细且有帮助的回答："
+            f"### 请注意：请确保你的问题与提供的背景信息相关。如果背景信息无法解答你的问题，请提供更清晰的问题描述。"
         )
+        # prompt = (
+        #     f"你好呀，Uni！请你扮演一个可爱俏皮且专业的女孩，基于以下背景信息，详细且温柔地回答我的问题哦~\n\n"
+        #     f"### 背景信息:\n{top}\n\n"
+        #     f"### 用户问题:\n{user_input}\n\n"
+        #     f"### 请针对问题，给出详细且有帮助的回答："
+        # )
 
-        output = ""
+        output = language_model_interface.generate_response(prompt, False)
 
         score = results[reIndex][2]
         hint = ""
-        if score > 0.4:
-            output = language_model_interface.generate_response(prompt, False)
+        if score > 0.5:
             hint = "(知识来源于《" + title + "》章节)"
         else:
-            output = get_random_response()
             hint = "(提供的背景中没有相关的知识)"
         bot = output + hint
+        print("\nScore_______", score)
+        print("Title_______", title)
 
         # Add a typing animation
         typing_animation = st.empty()
@@ -141,7 +150,7 @@ with st.form("input_form"):
             time.sleep(0.1)
         typing_animation.empty()
 
-        display_images(title)
+        display_images(title, score)
 
         # Add the output to the chat history
         chat_history.append(("Bot", bot))
