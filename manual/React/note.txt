@@ -1,0 +1,10 @@
+npx create-react-app voice-interaction-app
+cd voice-interaction-app
+npm install react-speech-recognition react-speech-kit react-icons
+
+
+在src目录下创建以下组件:
+
+VoiceInput.js - 用于语音输入和显示临时识别结果。
+Conversation.js - 用于显示历史对话记录,包括文字、图片和语音。
+App.js - 作为主组件,负责整合其他组件并与后端通信。

@@ -1,24 +1,35 @@
-# python3 -m venv venv
-# source venv/bin/activate
-# pip install Flask
 from flask import Flask, request, jsonify
-import os
+from flask_cors import CORS
+import base64
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route('/api/process-text', methods=['POST'])
-def process_text():
-    data = request.json
-    user_text = data.get('text')
-
-    # Placeholder for backend processing logic
-    response = {
-        'text': "This is a response from the backend.",
-        'image': "https://via.placeholder.com/150",
-        'audio': "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-    }
-
+@app.route('/process', methods=['POST'])
+def process():
+    # 获取前端发送的音频数据
+    audio_data = request.form.get('audio')
+    
+    # 模拟在手机端进行ASR
+    text = simulate_asr(audio_data)
+    
+    # 处理文本,生成回复
+    response = handle_text(text)
+    
     return jsonify(response)
 
+def simulate_asr(audio_data):
+    # 模拟ASR过程,实际应该使用真实的ASR服务
+    return "This is a simulated transcription."
+
+def handle_text(text):
+    # 模拟处理文本,生成回复
+    response = {
+        'text': f"你说的是: {text}",
+        'image': "https://via.placeholder.com/200",
+        'audio': "https://example.com/response.mp3"
+    }
+    return response
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

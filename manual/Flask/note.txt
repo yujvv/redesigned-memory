@@ -1,0 +1,15 @@
+mkdir voice-interaction-backend
+cd voice-interaction-backend
+python3 -m venv venv
+source venv/bin/activate  # Windows: \venv\Scripts\activate
+pip install flask flask-cors
+
+
+
+# 前端
+cd voice-interaction-app
+npm start
+
+# 后端
+cd voice-interaction-backend
+flask run
