@@ -45,6 +45,9 @@ actions_semantics = {
     ],
     "4": [
         # Discussing or describing images-picture_related
+        "我来为你拍照",
+        "拍照拍摄",
+        "我来拍",
         "这张图片展示了...",
         "让我来描述一下这幅图像。",
         "这张照片中，我们可以看到...",
